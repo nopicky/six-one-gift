@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>六一快乐，我的小朋友</title>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&display=swap");
+
+    :root {
+      --bg: #070817;
+      --deep: #120a2d;
+      --purple: #6d3cff;
+      --pink: #ff4fa3;
+      --rose: #ff6b8a;
+      --gold: #ffd36a;
+      --cyan: #73f3ff;
+      --text: #fff7fb;
+      --muted: #d8c9ec;
+      --glass: rgba(255, 255, 255, 0.08);
+      --line: rgba(255, 255, 255, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      font-family: "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(255, 79, 163, 0.32), transparent 26rem),
+        radial-gradient(circle at 78% 8%, rgba(115, 243, 255, 0.18), transparent 24rem),
+        radial-gradient(circle at 50% 82%, rgba(109, 60, 255, 0.28), transparent 28rem),
+        linear-gradient(135deg, #060713 0%, #16082f 46%, #071629 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -4;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: radial-gradient(circle at center, black, transparent 82%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    /* ===== 音乐控制按钮 ===== */
+    .music-toggle {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 30;
+      width: 52px;
+      height: 52px;
+      border: 1.5px solid var(--line);
+      border-radius: 50%;
+      background: rgba(12, 8, 35, 0.78);
+      backdrop-filter: blur(14px);
+      color: var(--gold);
+      font-size: 22px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .music-toggle:hover {
+      background: rgba(255, 79, 163, 0.18);
+      box-shadow: 0 0 28px rgba(255, 79, 163, 0.35);
+      transform: scale(1.08);
+    }
+    .music-toggle.playing {
+      animation: musicPulse 2s ease-in-out infinite;
+    }
+    .music-toggle.paused {
+      color: var(--muted);
+      animation: none;
+    }
+    @keyframes musicPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 rgba(255,79,163,0); }
+      50% { box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 22px rgba(255,79,163,0.5); }
+    }
+    .music-tooltip {
+      position: fixed;
+      bottom: 90px;
+      right: 28px;
+      z-index: 30;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(12, 8, 35, 0.9);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      backdrop-filter: blur(14px);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: 0.3s ease;
+      white-space: nowrap;
+    }
+    .music-tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== 右下角歌词动态展示 —— 由下而上冲击感 ===== */
+    .corner-lyrics-wrap {
+      position: fixed;
+      bottom: 96px;
+      right: 10px;
+      z-index: 29;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      pointer-events: none;
+      max-width: 260px;
+    }
+
+    .corner-lyrics {
+      font-family: "Ma Shan Zheng", "ZCOOL KuaiLe", "Noto Sans SC", cursive;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1.5;
+      text-align: right;
+      text-shadow:
+        0 0 4px rgba(255, 79, 163, 0.5),
+        0 0 12px rgba(255, 211, 106, 0.3);
+      background: linear-gradient(
+        180deg,
+        #ffd36a 0%,
+        #ffb088 28%,
+        #ff4fa3 55%,
+        #d06eff 78%,
+        #73f3ff 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* 每句歌词入场动画 */
+    .corner-lyrics.rise {
+      animation: lyricRise 0.9s cubic-bezier(0.18, 0.89, 0.32, 1.05) forwards;
+    }
+
+    .corner-lyrics-beam {
+      width: 100%;
+      height: 2px;
+      border-radius: 50%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 211, 106, 0.6) 25%,
+        rgba(255, 79, 163, 0.9) 50%,
+        rgba(115, 243, 255, 0.6) 75%,
+        transparent 100%
+      );
+      filter: blur(5px);
+      opacity: 0.3;
+      transition: opacity 0.6s, transform 0.6s;
+    }
+
+    .corner-lyrics-beam.shock {
+      opacity: 1;
+      transform: scaleX(1.8);
+      transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+    }
+
+    @keyframes lyricRise {
+      0% {
+        transform: translateY(40px) scale(0.3);
+        opacity: 0;
+        filter: blur(10px);
+      }
+      35% {
+        transform: translateY(-10px) scale(1.15);
+        opacity: 1;
+        filter: blur(0) brightness(1.4);
+      }
+      55% {
+        transform: translateY(3px) scale(0.9);
+        opacity: 1;
+        filter: blur(0) brightness(1.1);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        filter: blur(0);
+      }
+    }
+
+    #particleCanvas,
+    #trailCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #particleCanvas {
+      z-index: -3;
+    }
+
+    #trailCanvas {
+      z-index: 50;
+    }
+
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, rgba(255, 79, 163, 0.25), transparent 20rem),
+        linear-gradient(135deg, #090818, #16082f);
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .loader.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-heart {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      transform: rotate(45deg);
+      background: var(--pink);
+      box-shadow: 0 0 36px rgba(255, 79, 163, 0.9), 0 0 90px rgba(109, 60, 255, 0.55);
+      animation: loadingBeat 0.9s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .loader-heart::before,
+    .loader-heart::after {
+      content: "";
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: var(--pink);
+    }
+
+    .loader-heart::before {
+      top: -48px;
+      left: 0;
+    }
+
+    .loader-heart::after {
+      left: -48px;
+      top: 0;
+    }
+
+    .loader p {
+      position: absolute;
+      bottom: 24%;
+      margin: 0;
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    @keyframes loadingBeat {
+      0%, 100% {
+        transform: rotate(45deg) scale(1);
+      }
+      45% {
+        transform: rotate(45deg) scale(1.16);
+      }
+    }
+
+    .top-nav {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      z-index: 20;
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.35rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(7, 8, 23, 0.48);
+      backdrop-filter: blur(18px);
+      transform: translateX(-50%);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.25);
+    }
+
+    .top-nav a {
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: 0.2s ease;
+    }
+
+    .top-nav a:hover {
+      color: #231024;
+      background: linear-gradient(135deg, #fff7fb, #ffd36a);
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      padding: 120px 20px 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-inner {
+      width: min(980px, 100%);
+      transform: translateY(16px);
+      animation: heroIn 1.1s ease 1.9s forwards;
+      opacity: 0;
+    }
+
+    @keyframes heroIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .kicker {
+      margin: 0 0 1rem;
+      color: var(--cyan);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .typing-title {
+      min-height: clamp(5rem, 16vw, 9.2rem);
+      margin: 0;
+      font-family: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif;
+      font-size: clamp(3.2rem, 9vw, 8.2rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+      white-space: pre-line;
+      text-shadow: 0 0 24px rgba(255, 79, 163, 0.45), 0 0 70px rgba(109, 60, 255, 0.45);
+    }
+
+    .typing-title::after {
+      content: "";
+      display: inline-block;
+      width: 0.08em;
+      height: 0.85em;
+      margin-left: 0.08em;
+      vertical-align: -0.08em;
+      background: var(--gold);
+      animation: caret 0.8s steps(2) infinite;
+    }
+
+    @keyframes caret {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .days-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-top: 1.3rem;
+      padding: 0.8rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      color: var(--muted);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.24);
+    }
+
+    .days-card strong {
+      color: var(--gold);
+      font-size: 1.4rem;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      margin: 1.5rem auto 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.9;
+    }
+
+    .section {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 100px 0;
+    }
+
+    .section-title {
+      max-width: 760px;
+      margin: 0 auto 52px;
+      text-align: center;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-family: "Ma Shan Zheng", "Noto Sans SC", cursive;
+      font-size: clamp(2.45rem, 5vw, 4.8rem);
+      font-weight: 400;
+      line-height: 1.12;
+    }
+
+    .section-title p {
+      margin: 1rem auto 0;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(34px) scale(0.98);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+      will-change: opacity, transform;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .photo-wall-wrap {
+      height: 620px;
+      display: grid;
+      place-items: center;
+      perspective: 1200px;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+
+    .photo-cylinder {
+      position: relative;
+      width: min(280px, 58vw);
+      height: 390px;
+      transform-style: preserve-3d;
+      animation: cylinderSpin 24s linear infinite;
+      will-change: transform;
+      cursor: grab;
+    }
+
+    .photo-cylinder.dragging {
+      animation-play-state: paused;
+      cursor: grabbing;
+    }
+
+    .photo-card {
+      position: absolute;
+      inset: 0;
+      padding: 0.52rem 0.52rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 18px;
+      background: rgba(255, 247, 251, 0.92);
+      box-shadow: 0 0 28px rgba(255, 79, 163, 0.24), 0 28px 72px rgba(0, 0, 0, 0.38);
+      backface-visibility: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      will-change: transform;
+    }
+
+    .photo-card:hover {
+      box-shadow: 0 0 44px rgba(255, 79, 163, 0.48), 0 30px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    .photo-card img {
+      display: block;
+      width: 100%;
+      height: 82%;
+      object-fit: cover;
+      border-radius: 13px;
+      filter: saturate(1.08) contrast(1.04);
+    }
+
+    .photo-card span {
+      display: block;
+      margin-top: 0.72rem;
+      color: #2b1326;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    @keyframes cylinderSpin {
+      to {
+        transform: rotateY(360deg);
+      }
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 44px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: linear-gradient(to bottom, transparent, rgba(255, 79, 163, 0.75), rgba(255, 211, 106, 0.75), transparent);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      position: relative;
+      width: min(430px, calc(50% - 52px));
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+      will-change: opacity, transform;
+    }
+
+    .timeline-item.right {
+      justify-self: end;
+      transform: translateX(40px);
+    }
+
+    .timeline-item.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .timeline-item::before {
+      content: "❤";
+      position: absolute;
+      top: 22px;
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: white;
+      background: radial-gradient(circle at 30% 20%, #fff, var(--pink) 45%, #7c1f70);
+      box-shadow: 0 0 24px rgba(255, 79, 163, 0.78);
+      animation: nodeBeat 1.6s ease-in-out infinite;
+    }
+
+    .timeline-item.left::before {
+      right: -72px;
+    }
+
+    .timeline-item.right::before {
+      left: -72px;
+    }
+
+    @keyframes nodeBeat {
+      50% {
+        transform: scale(1.14);
+      }
+    }
+
+    .timeline-item time {
+      color: var(--gold);
+      font-weight: 900;
+    }
+
+    .timeline-item h3 {
+      margin: 0.55rem 0;
+      font-size: 1.45rem;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .love-carousel {
+      position: relative;
+      width: min(760px, 100%);
+      min-height: 310px;
+      margin: 0 auto;
+      perspective: 1200px;
+    }
+
+    .quote-card {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      align-content: center;
+      padding: clamp(1.5rem, 5vw, 3.2rem);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(255, 79, 163, 0.18), transparent 12rem),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+      box-shadow: 0 32px 92px rgba(0, 0, 0, 0.35);
+      transform: rotateY(90deg) scale(0.92);
+      opacity: 0;
+      transition: opacity 0.65s ease, transform 0.65s ease;
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+    }
+
+    .quote-card.active {
+      opacity: 1;
+      transform: rotateY(0deg) scale(1);
+    }
+
+    .quote-card p {
+      margin: 0;
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.35;
+    }
+
+    .quote-card span {
+      margin-top: 1.3rem;
+      color: var(--gold);
+      font-weight: 900;
+    }
+
+    .quote-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.7rem;
+      margin-top: 24px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.28);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .dot.active {
+      width: 34px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink), var(--gold));
+    }
+
+    .surprise {
+      display: grid;
+      place-items: center;
+      min-height: 430px;
+      text-align: center;
+    }
+
+    .surprise-button {
+      position: relative;
+      min-height: 68px;
+      padding: 0 2rem;
+      border: 0;
+      border-radius: 999px;
+      color: #230b22;
+      background: linear-gradient(135deg, #fff7fb, var(--gold) 34%, var(--pink) 74%, var(--cyan));
+      box-shadow: 0 18px 64px rgba(255, 79, 163, 0.36);
+      font-size: 1.15rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.22s ease;
+      will-change: transform;
+    }
+
+    .surprise-button:hover {
+      transform: translateY(-3px) scale(1.03);
+    }
+
+    .confession {
+      max-width: 850px;
+      margin: 38px auto 0;
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: clamp(2.1rem, 5vw, 4.2rem);
+      line-height: 1.42;
+      background: linear-gradient(90deg, #fff7fb, #ffd36a, #ff4fa3, #73f3ff, #fff7fb);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      animation: rainbow 4s linear infinite;
+    }
+
+    .confession.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes rainbow {
+      to {
+        background-position: 300% 0;
+      }
+    }
+
+    .footer-love {
+      padding: 80px 20px 110px;
+      text-align: center;
+      font-family: "Ma Shan Zheng", cursive;
+      font-size: clamp(2.3rem, 6vw, 5rem);
+      color: #fff7fb;
+      text-shadow: 0 0 22px rgba(255, 79, 163, 0.72), 0 0 68px rgba(109, 60, 255, 0.55);
+      animation: breathe 2.4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      50% {
+        transform: scale(1.035);
+        text-shadow: 0 0 32px rgba(255, 79, 163, 0.95), 0 0 92px rgba(115, 243, 255, 0.6);
+      }
+    }
+
+    .falling {
+      position: fixed;
+      top: -30px;
+      z-index: 12;
+      pointer-events: none;
+      color: var(--pink);
+      text-shadow: 0 0 16px rgba(255, 79, 163, 0.65);
+      animation: fall linear forwards;
+      will-change: transform, opacity;
+    }
+
+    @keyframes fall {
+      to {
+        opacity: 0.2;
+        transform: translate3d(var(--drift), calc(100vh + 80px), 0) rotate(360deg);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .top-nav {
+        top: 12px;
+        width: calc(100% - 24px);
+        justify-content: center;
+        overflow-x: auto;
+      }
+
+      .top-nav a {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.84rem;
+      }
+
+      .hero {
+        padding-top: 105px;
+      }
+
+      .typing-title {
+        min-height: 7.6rem;
+        font-size: 2.62rem;
+        line-height: 1.12;
+      }
+
+      .days-card {
+        border-radius: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .section {
+        padding: 74px 0;
+      }
+
+      .photo-wall-wrap {
+        height: 500px;
+      }
+
+      .photo-cylinder {
+        width: 220px;
+        height: 310px;
+      }
+
+      .timeline::before {
+        left: 20px;
+      }
+
+      .timeline-item,
+      .timeline-item.right {
+        width: calc(100% - 54px);
+        justify-self: end;
+        transform: translateX(34px);
+      }
+
+      .timeline-item.left::before,
+      .timeline-item.right::before {
+        left: -54px;
+        right: auto;
+      }
+
+      .love-carousel {
+        min-height: 360px;
+      }
+
+      /* 手机端歌词适配 */
+      .corner-lyrics-wrap {
+        bottom: 82px;
+        right: 6px;
+        max-width: 180px;
+      }
+      .corner-lyrics {
+        font-size: 15px;
+      }
+  </style>
+</head>
+<body>
+  <div class="loader" id="loader">
+    <div class="loader-heart"></div>
+    <p>loading love</p>
+  </div>
+
+  <canvas id="particleCanvas"></canvas>
+  <canvas id="trailCanvas"></canvas>
+
+  <nav class="top-nav" aria-label="页面导航">
+    <a href="#hero">首页</a>
+    <a href="#photos">照片墙</a>
+    <a href="#timeline">时间线</a>
+    <a href="#quotes">情话</a>
+    <a href="#surprise">惊喜</a>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <p class="kicker">Happy Children's Day, my love</p>
+      <h1 class="typing-title" id="typingTitle"></h1>
+      <div class="days-card" aria-live="polite">
+        <span>我们已经在一起</span>
+        <strong id="daysTogether">0天 00:00:00</strong>
+      </div>
+      <p class="hero-copy">
+        今天你可以继续做小朋友，我负责把星星、糖果、晚风和所有偏爱都悄悄放进你的口袋。
+      </p>
+    </div>
+  </section>
+
+  <section class="section reveal" id="photos">
+    <div class="section-title">
+      <p class="kicker">our little photo planet</p>
+      <h2>把喜欢围成一圈，慢慢转给你看</h2>
+      <p>照片墙使用 CSS 3D 圆柱旋转，自动播放，也可以按住拖动旋转。</p>
+    </div>
+    <div class="photo-wall-wrap">
+      <div class="photo-cylinder" id="photoCylinder" aria-label="3D 旋转照片墙">
+        <figure class="photo-card"><img loading="lazy" width="400" height="500" src="../tupian/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260601144423_122_92.jpg" alt="情侣照片占位图 1"><span>一次真实心动</span></figure>
+        <figure class="photo-card"><img loading="lazy" width="400" height="500" src="../tupian/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260601144425_123_92.jpg" alt="情侣照片占位图 2"><span>一起等日落</span></figure>
+        <figure class="photo-card"><img loading="lazy" width="400" height="500" src="../tupian/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260601144428_124_92.jpg" alt="情侣照片占位图 3"><span>你笑起来很好看</span></figure>
+        <figure class="photo-card"><img loading="lazy" width="400" height="500" src="../tupian/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260601144430_125_92.jpg" alt="情侣照片占位图 4"><span>普通夜晚也发光</span></figure>
+        <figure class="photo-card"><img loading="lazy" width="400" height="500" src="../tupian/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260601144433_126_92.jpg" alt="情侣照片占位图 5"><span>想和你去远方</span></figure>
+        <figure class="photo-card"><img loading="lazy" width="400" height="500" src="../tupian/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260601144436_127_92.jpg" alt="情侣照片占位图 6"><span>下一次见面</span></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="timeline">
+    <div class="section-title reveal">
+      <p class="kicker">timeline of us</p>
+      <h2>重要的日子，都有你的位置</h2>
+      <p>滚动到这里时，每个节点会交替从左右淡入。</p>
+    </div>
+    <div class="timeline">
+      <!-- <article class="timeline-item left"><time>2025.11.28</time><h3>故事开始</h3><p>从这一天开始，我多了一个最想分享日常的人。</p></article> -->
+      <!-- <article class="timeline-item right"><time>2025.12.17</time><h3>第一次约会</h3><p>那天没有特别隆重，但我偷偷记了很久。</p></article> -->
+      <!-- <article class="timeline-item left"><time>2025.12.25</time><h3>第一份礼物</h3><p>不是因为节日才喜欢你，是因为喜欢你才期待节日。</p></article> -->
+      <article class="timeline-item right"><time>2026.06.01</time><h3>六一快乐</h3><p>今天你继续当小朋友，我继续认真喜欢你。</p></article>
+    </div>
+  </section>
+
+  <section class="section reveal" id="quotes">
+    <div class="section-title">
+      <p class="kicker">sweet words carousel</p>
+      <h2>有些情话，要翻一面才看见</h2>
+    </div>
+    <div class="love-carousel" id="loveCarousel">
+      <article class="quote-card active"><p>你不用一直长大，在我这里可以永远被偏爱。</p><span>01 / 01</span></article>
+      <article class="quote-card"><p>想把所有幼稚的快乐，都分你一半。</p><span>02 / 01</span></article>
+      <article class="quote-card"><p>如果星星会眨眼，那一定是在替我说想你。</p><span>03 / 01</span></article>
+      <article class="quote-card"><p>世间纷扰与你无关，只管奔赴你的童话。</p><span>04 / 01</span></article>
+      <article class="quote-card"><p>别的小朋友有的快乐，我的小朋友也必须拥有。</p><span>05 / 01</span></article>
+      <article class="quote-card"><p>六一限定快乐，我的小朋友永远被偏爱。</p><span>06 / 01</span></article>
+    </div>
+    <div class="quote-controls" id="quoteControls" aria-label="情话轮播控制"></div>
+  </section>
+
+  <section class="section surprise reveal" id="surprise">
+    <button class="surprise-button" id="surpriseButton" type="button">点我有惊喜</button>
+    <div class="confession" id="confessionText">
+      我想陪你过很多个六一，不只是今天。你可以慢慢长大，也可以偶尔幼稚，我都会认真爱你。
+    </div>
+  </section>
+
+  <footer class="footer-love">永远爱你</footer>
+
+  <!-- ===== 背景音乐播放器：本地 MP3 ===== -->
+  <audio id="bgMusic" src="dangni.mp3" autoplay loop preload="auto"></audio>
+
+  <!-- ===== 右下角歌词动态展示 ===== -->
+  <div class="corner-lyrics-wrap">
+    <div class="corner-lyrics" id="cornerLyrics"></div>
+    <div class="corner-lyrics-beam" id="cornerBeam"></div>
+  </div>
+
+  <!-- 音乐控制按钮 -->
+  <button class="music-toggle playing" id="musicToggle" type="button" aria-label="音乐开关">♪</button>
+  <div class="music-tooltip" id="musicTooltip">当你 · 林俊杰</div>
+
+  <script>
+    window.PAGE_CONFIG = {
+      audioSrc: "dangni.mp3",
+      songName: "当你",
+      artist: "林俊杰",
+      lrcData: [
+        [14.70, "如果有一天  我回到从前"],
+        [20.53, "回到最原始的我"],
+        [24.91, "你是否  会觉得我不错"],
+        [29.36, "如果有一天  我离你遥远"],
+        [34.09, "不能再和你相约"],
+        [39.22, "你是否会发觉  我已经说再见"],
+        [46.78, "当你的眼睛  眯着笑  当你喝可乐  当你吵"],
+        [53.90, "我想对你好  你从来不知道  想你  想你  也能成为嗜好"],
+        [61.13, "当你说今天的烦恼  当你说夜深  你睡不着"],
+        [68.28, "我想对你说  却害怕都说错  好喜欢你  知不知道"],
+        [83.31, "如果有一天  梦想都实现"],
+        [88.68, "回忆都成了永远  你是否还会  记得今天"],
+        [97.43, "如果有一天  我们都发觉"],
+        [102.28, "原来什么都可以  我们是否还会  停留在这里"],
+        [114.79, "当你的眼睛  眯着笑  当你喝可乐  当你吵"],
+        [121.96, "我想对你好  你从来不知道  想你  想你  也能成为嗜好"],
+        [129.14, "当你说今天的烦恼  当你说夜深  你睡不着"],
+        [136.38, "我想对你说  却害怕都说错  好喜欢你  知不知道"],
+        [158.44, "也许空虚  让我想得太多  也许该回到被窝"],
+        [165.06, "梦里会相遇  就毫不犹豫  大声的说我要说"],
+        [172.37, "当你的眼睛  眯着笑  当你喝可乐  当你吵"],
+        [179.37, "我想对你好  你从来不知道  想你  想你  也能成为嗜好"],
+        [186.48, "当你说今天的烦恼  当你说夜深  你睡不着"],
+        [193.66, "我想对你说  却害怕都说错  好喜欢你  知不知道"],
+        [201.07, "当你的眼睛  眯着笑  当你喝可乐  当你吵"],
+        [207.87, "我想对你好  你从来不知道  想你  想你  也能成为嗜好"],
+        [215.06, "啦 ~ ~ ~  啦 ~ ~ ~"],
+        [222.40, "我想对你说  却害怕都说错  好喜欢你  知不知道"],
+      ]
+    };
+  </script>
+  <script src="../common.js"></script>
+</body>
+</html>

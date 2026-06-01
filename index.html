@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>六一快乐 🎈</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap");
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1628 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255, 79, 163, 0.25), transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(115, 243, 255, 0.15), transparent 35%),
+        radial-gradient(circle at 50% 80%, rgba(109, 60, 255, 0.2), transparent 40%);
+      pointer-events: none;
+    }
+    h1 {
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      background: linear-gradient(135deg, #ff4fa3, #ffd36a, #73f3ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5em;
+      z-index: 1;
+      animation: float 3s ease-in-out infinite;
+    }
+    p.subtitle {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 2.5em;
+      z-index: 1;
+    }
+    .cards {
+      display: flex;
+      gap: 2rem;
+      z-index: 1;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 1rem;
+    }
+    .card {
+      width: 260px;
+      padding: 2rem 1.5rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      text-decoration: none;
+      color: #fff;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 20px 60px rgba(109, 60, 255, 0.3);
+      border-color: rgba(255, 79, 163, 0.4);
+    }
+    .card .icon { font-size: 3rem; margin-bottom: 0.8rem; }
+    .card .title {
+      font-family: "ZCOOL KuaiLe", cursive;
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .card .desc { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
+    .card:nth-child(1) .icon { animation: pulse-pink 2s ease-in-out infinite; }
+    .card:nth-child(2) .icon { animation: pulse-cyan 2s ease-in-out infinite 0.5s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes pulse-pink {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    @keyframes pulse-cyan {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    /* floating particles */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: drift linear infinite;
+    }
+    @keyframes drift {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎈 六一快乐 🎈</h1>
+  <p class="subtitle">选一首歌，打开你的惊喜 ✨</p>
+  <div class="cards">
+    <a class="card" href="./dangni/index.html">
+      <div class="icon">🎵</div>
+      <div class="title">当你</div>
+      <div class="desc">林俊杰 · 温暖告白</div>
+    </a>
+    <a class="card" href="./xiloubiexu/index.html">
+      <div class="icon">🎶</div>
+      <div class="title">西楼别序</div>
+      <div class="desc">伊昔眠 · 古韵悠然</div>
+    </a>
+  </div>
+  <script>
+    // floating particles
+    const colors = ['#ff4fa3','#ffd36a','#73f3ff','#6d3cff'];
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 6 + 3;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (Math.random() * 8 + 8) + 's';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      document.body.appendChild(p);
+    }
+  </script>
+</body>
+</html>
